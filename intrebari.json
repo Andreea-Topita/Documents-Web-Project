@@ -1,0 +1,63 @@
+[
+    {
+      "intrebare": "Ce reprezintă un document digital?",
+      "variante": [
+        "Un fișier pe computer care conține text, imagini sau alte date",
+        "Un dispozitiv hardware",
+        "Un tip de imprimantă",
+        "O rețea de calculatoare"
+      ],
+      "corect": 0
+    },
+    {
+      "intrebare": "Care format de fișier este cel mai folosit pentru distribuirea de documente?",
+      "variante": [
+        "MP3",
+        "PDF",
+        "AVI",
+        "EXE"
+      ],
+      "corect": 1
+    },
+    {
+      "intrebare": "Ce aplicație folosești, de obicei, pentru a deschide un fișier PDF?",
+      "variante": [
+        "Adobe Reader/Acrobat",
+        "Spotify",
+        "Visual Studio Code",
+        "VLC Media Player"
+      ],
+      "corect": 0
+    },
+    {
+      "intrebare": "Ce înseamnă extensia .docx?",
+      "variante": [
+        "Document Open XML",
+        "Digital Object Container",
+        "Data of Content Exchange",
+        "Direct Object Context"
+      ],
+      "corect": 0
+    },
+    {
+      "intrebare": "Ce metadate de bază regăsești în aproape orice document?",
+      "variante": [
+        "Titlu, autor, dată creării",
+        "Sunet, volum, canal",
+        "Rezoluție, cadre pe secundă",
+        "Dimensiune, greutate, volum"
+      ],
+      "corect": 0
+    },
+    {
+      "intrebare": "Cum poți proteja un document Word cu parolă?",
+      "variante": [
+        "Din meniul “File” > “Protect Document”",
+        "Din setările imprimantei",
+        "Din proprietățile monitorului",
+        "Din bara de stare a Windows-ului"
+      ],
+      "corect": 0
+    }
+  ]
+  
