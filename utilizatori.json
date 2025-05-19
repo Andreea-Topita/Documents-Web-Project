@@ -1,0 +1,37 @@
+[
+  {
+    "username": "andreeat",
+    "password": "123",
+    "nume": "Topiță",
+    "prenume": "Andreea",
+    "email": "andreeatopita57@gmail.com"
+  },
+  {
+    "username": "admin",
+    "password": "parola123",
+    "nume": "Administrator",
+    "prenume": "Site",
+    "email": "admin@gmail.com"
+  },
+  {
+    "username": "ionpop",
+    "password": "pop12",
+    "nume": "Popa",
+    "prenume": "Ion",
+    "email": "ion.popa@yahoo.com"
+  },
+  {
+    "username": "mariad",
+    "password": "parola",
+    "nume": "Dumitrescu",
+    "prenume": "Maria",
+    "email": "maria.dumitrescu@gmail.com"
+  },
+  {
+    "username": "bogdanb",
+    "password": "bog",
+    "nume": "Barbu",
+    "prenume": "Bogdan",
+    "email": "bogdan.barbu@yahoo.com"
+  }
+]

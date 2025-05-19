@@ -1,15 +1,12 @@
-</html>   
+<main>
+  <div class="card">
     <h2>Chestionar</h2>
-
-<form method="POST" action="/rezultat-chestionar">
-    <% for (let item of intrebari) { %>
+    <form method="POST" action="/rezultat-chestionar">
+      <% for (let item of intrebari) { %>
         <fieldset>
-          <!-- textul întrebării -->
           <legend><%= item.intrebare %></legend>
-  
           <% for (let varText of item.variante) { %>
             <div>
-              <!-- folosim numele întrebarii ca si cheie in req.body -->
               <input
                 type="radio"
                 name="<%= item.intrebare %>"
@@ -19,11 +16,8 @@
             </div>
           <% } %>
         </fieldset>
-        <br>
       <% } %>
-  
-      <button type="submit">Trimite</button>
+      <button type="submit" class="button">💌 Trimite</button>
     </form>
-
-</html>
-  
+  </div>
+</main>

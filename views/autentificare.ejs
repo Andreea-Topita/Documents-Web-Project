@@ -1,0 +1,25 @@
+<main>
+  <div class="card">
+    <h2>🔐 Autentificare</h2>
+
+    <% if (mesajEroare) { %>
+      <p class="error"><%= mesajEroare %></p>
+    <% } %>
+
+    <form method="POST" action="/verificare-autentificare">
+      <fieldset>
+        <legend>Date de autentificare</legend>
+        <div>
+          <label for="user">Utilizator:</label>
+          <input id="user" name="user" type="text" required>
+        </div>
+        <div>
+          <label for="pass">Parolă:</label>
+          <input id="pass" name="pass" type="password" required>
+        </div>
+      </fieldset>
+
+      <button class="button" type="submit">Autentificare 🔑</button>
+    </form>
+  </div>
+</main>

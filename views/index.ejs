@@ -1,0 +1,11 @@
+<main>
+  <div class="card">
+    <% if (user) { %>
+    <h2>🖋️ Bine ai venit, <%= user.nume %> <%= user.prenume %>! 🎉</h2>
+      <a href="/chestionar" class="button">📚 Începe chestionarul!</a>
+    <% } else { %>
+      <h2>Bun venit pe pagina principală!</h2>
+      <p>Apasă aici pentru <a href="/autentificare" class="button">Autentificare🔑</a></p>
+    <% } %>
+  </div>
+</main>

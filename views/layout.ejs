@@ -9,12 +9,20 @@
     <body>
         <header>
             <h1>Documente</h1>
+
+            <% if (user) { %>
+                <nav>
+                <span>Autentificat ca <strong><%= user.nume %> <%= user.prenume %></strong></span>
+                <a href="/deconectare" class="logout">🚪 Deconectare</a>
+                </nav>
+            <% } %>
+
         </header>
 
         <main>
             <%-body %>
         </main>
-
+        <hr>
         <footer>
             <p>&copy; 2025 Topiță Andreea</p>
         </footer>

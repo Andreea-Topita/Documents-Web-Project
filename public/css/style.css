@@ -5,61 +5,140 @@
   box-sizing: border-box;
 }
 
-
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f4f4f4;
-  color: #333;
+  background: #f7f2f8;
+  color: #000000;
 }
 
-header, footer {
-  background: #fff;
-  padding: 16px;
+
+header {
+  position: relative;
+  background: #f2dce6e6;   
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+header h1 {
+  font-size: 28px;
+  color: #000000;
   text-align: center;
-  border-bottom: 1px solid #ddd;
 }
 
-footer {
-  border-top: 1px solid #ddd;
-  border-bottom: none;
-  margin-top: 24px;
+header h1::before {
+  content: "📄";
+  margin-right: 8px;
+  font-size: 28px;
 }
 
-h1 {
-  font-size: 2rem;
-  margin-bottom: 12px;
+header nav {
+  position: absolute;
+  top: 16px;
+  right: 32px;
+  display: flex;
+  align-items: center;
+  font-size:18px;
+  color: #000000;
 }
+
+header nav span {
+  margin-right: 12px;
+}
+
+header nav a.logout {
+  color: #000000;  
+  text-decoration: none;
+  font-weight: bold;
+}
+
+header nav a.logout:hover {
+  text-decoration: underline;
+}
+
 
 main {
   width: 90%;
-  max-width: 600px;
+  max-width: 700px;
   margin: 24px auto;
-  background: #fff;
-  padding: 16px;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 0 16px;
 }
 
-/*formular*/
+
+.card {
+  background: #fff8fddb;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(45, 0, 55, 0.436);
+  margin-bottom: 24px;
+}
+
+
+h2 {
+  font-size: 22px;
+  color: #000000;
+  margin-bottom: 12px;
+}
+
+
+.button {
+  display: inline-block;
+  padding: 8px 20px;
+  font-size: 16px;
+  font-weight: 600;     
+  background: #98497a;
+  color: #fff;
+  text-decoration: none;  
+  border: none;           
+  border-radius: 4px;
+  margin: 18px auto 0;    
+  text-align: center;
+  cursor: pointer;
+}
+.card .button {
+  display: block;
+  width: 280px;           
+  margin: 16px auto 0;
+}
+
+.button:hover {
+  background: #d886b7cf;
+}
+
 form {
   display: flex;
   flex-direction: column;
+  
+}
+
+.card fieldset {
+  padding: 4px 10px;      
+  margin-bottom: 16px;     
+}
+
+.card legend {
+  margin-bottom: 0;        
+  padding: 0 4px;
 }
 
 fieldset {
-  border: 1px solid #ccc;
+  border: 1px solid #d3c0cc;
   border-radius: 4px;
-  padding: 12px;
+  padding: 8px;           
   margin-bottom: 16px;
 }
 
 legend {
   font-weight: bold;
+  font-size: 16px;
   padding: 0 4px;
+  display: block;
+  margin-bottom: 4px;     
 }
 
 fieldset div {
-  margin-top: 8px;
+  margin-top: 1px;        
 }
 
 label {
@@ -67,22 +146,31 @@ label {
   font-size: 14px;
 }
 
-/*buton */
-button[type="submit"] {
-  padding: 8px 16px;
-  background: #0077cc;
-  color: #fff;
+hr {
   border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  margin-top: 8px;
+  border-top: 1px solid #e0e0e0;
+  margin: 5px;  
 }
 
-button[type="submit"]:hover {
-  background: #005fa3;
+.error {
+  color: #ea0000;    
+
+  font-size: 17px;
 }
 
-/* link */
+.card form {
+  margin-top: 12px;
+}
+.card input[type="text"],
+.card input[type="password"] {
+  width: 100%;
+  margin-top: 4px;
+}
 
-/*rezultat chestionar*/
+
+footer {
+  padding: 10px;
+  font-size: 17px;
+  color: #050405;
+  text-align: left;
+}
