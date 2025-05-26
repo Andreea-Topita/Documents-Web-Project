@@ -1,0 +1,39 @@
+<main>
+  <div class="card">
+    <h2>🛒 Coșul tău</h2>
+
+    <% if (items.length === 0) { %>
+      <p>Coșul este gol.</p>
+    <% } else { %>
+      <table class="cart-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Produs</th>
+            <th>Cantitate</th>
+            <th>Preț unitar</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+        <% items.forEach((it, i) => { %>
+          <tr>
+            <td><%= i+1 %></td>
+            <td><%= it.nume %></td>
+            <td><%= it.quantity %></td>
+            <td><%= it.pret %> lei</td>
+            <td><%= it.subtotal %> lei</td>
+          </tr>
+        <% }) %>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4" class="right"><b>Total</b></td>
+            <td><b><%= total %> lei</b></td>
+          </tr>
+        </tfoot>
+      </table>
+      <a href="/" class="cart-btn">Înapoi la catalog</a>
+    <% } %>
+  </div>
+</main>

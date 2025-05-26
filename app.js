@@ -3,12 +3,31 @@ const expressLayouts = require('express-ejs-layouts');
 const bodyParser = require('body-parser');
 const cookieParser=require('cookie-parser');
 
+const sqlite3         = require('sqlite3').verbose();      
+
+
 //importam lista de intrebari din fisierul json
 // fisierul json contine un array de obiecte cu intrebari, variante si raspuns corect
 const fs = require('fs').promises;
 const path = require('path');
 
 const session = require('express-session');
+
+//deschidem fisierul de baza de date SQLite
+const dbFile = path.join(__dirname, 'cumparaturi.db');
+const db     = new sqlite3.Database(dbFile, err => {
+  if (err) console.error('Eroare la deschiderea BD:', err);
+  else        console.log('BD SQLite deschisă:', dbFile);
+});
+
+const execute = (db, sql, params = []) => {
+  return new Promise((resolve, reject) => {
+    db.run(sql, params, (err) => {
+      if (err) reject(err);
+      else resolve();
+    });
+  });
+};
 
 
 const app = express();
@@ -40,6 +59,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // middleware pentru gestionarea sesiunilor
 //middleware-ul va salva datele sesiunii in memorie
 //middleware = functie care se executa inainte de a ajunge la ruta
+
 app.use(session({
   secret: 'secret-key', // cheia secreta pentru criptarea sesiunii
   resave: false,
@@ -52,7 +72,13 @@ app.use((req, res, next) => {
   res.locals.user = req.session.user;
   next();
 });
-
+//middleware pentru a face coșul de cumpărături disponibil în toate view-urile
+// va fi disponibil in toate view-urile ca variabila "cos"
+// daca nu exista cosul, il initializam ca obiect gol
+app.use((req, res, next) => {
+  res.locals.cos = req.session.cos || {};
+  next();
+});
 
 
 async function loadUtilizatori() {
@@ -74,8 +100,57 @@ async function loadIntrebari() {
 // proprietățile obiectului Response - res - https://expressjs.com/en/api.html#res
 
 
+//LAB12 data base
 
-// la accesarea din browser adresei http://localhost:6789/chestionar se va apela funcția specificată
+app.get('/creare-bd', async (req, res) => {
+  const sql = `
+    CREATE TABLE IF NOT EXISTS produse (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      nume TEXT NOT NULL,
+      pret REAL NOT NULL,
+      descriere TEXT
+    );
+  `;
+  try {
+    await execute(db, sql);
+    console.log('Tabela produse creată (sau deja existentă)');
+  } catch (err) {
+    console.error('Eroare la creare tabelă:', err);
+  }
+  res.redirect('/');
+});
+
+
+
+app.get('/inserare-bd', async (req, res) => {
+  const produse = [
+    ['Foi Albe A4',       10.00, 'Foi albe A4,pachet de 500 de file'],
+    ['Pix Albastru',      2.50, 'Pix cu cerneală albastră'],
+    ['Caiet 100 File',   8.00, 'Caiet cu 100 de file, liniat'],
+    ['Mapă Plastică',    4.00, 'Mapă plastică pentru documente'],
+    ['Creion',        1.80, 'Creion grafic'],
+    ['Marker Permanent',  3.00, 'Marker permanent negru'],
+  ];
+
+  try {
+    for (const [nume, pret, descriere] of produse) {
+      const sql = `
+        INSERT INTO produse (nume, pret, descriere)
+        VALUES (?, ?, ?)
+      `;
+      await execute(db, sql, [nume, pret, descriere]);
+    }
+    console.log('Documente inserate cu succes în tabela "produse"');
+  } catch (err) {
+    console.error('Eroare la inserare produse:', err);
+  }
+
+  // redirect la pagină principală
+  res.redirect('/');
+});
+
+
+// la accesarea din browser adresei  se va apela functia 
 app.get('/chestionar',async  (req, res) => {
     try {
         const intrebari = await loadIntrebari();
@@ -125,13 +200,63 @@ app.post('/rezultat-chestionar', async (req, res) => {
 
 //index.ejs
 app.get('/', (req, res) => {
-    //accesare cookie utilizator
-  //daca utilizatorul este logat, cookie-ul va contine numele lui
-    //daca nu este logat, cookie-ul va fi gol
-  const utilizator = req.cookies.utilizator;   
-  res.render('index', {
+  const utilizator = req.session.user || null;
+    db.all('SELECT * FROM produse', (err, produse) => {
+      if (err) return res.status(500).send('Eroare pe server');
+      res.render('index', {
+        user: utilizator,
+        produse,
+        cos: req.session.cos || []
+      });
+    });
+  });
 
-    utilizator
+
+//adaugare-cos
+app.get('/adaugare-cos', (req, res) => {
+  const idProdus = parseInt(req.query.id, 10);
+  if (isNaN(idProdus)) return res.status(400).send('ID invalid');
+
+  // initializează coșul ca obiect { idProdus: cantitate }
+  if (!req.session.cos) req.session.cos = {};
+  req.session.cos[idProdus] = (req.session.cos[idProdus] || 0) + 1;
+
+  console.log('Coșul curent:', req.session.cos);
+  res.redirect('/');
+});
+
+
+
+app.get('/vizualizare-cos', (req, res) => {
+  const cos = req.session.cos || {};
+  const ids = Object.keys(cos).map(id => parseInt(id, 10));
+  if (ids.length === 0) {
+    return res.render('vizualizare-cos', { items: [], total: 0 });
+  }
+
+  // scoate toate produsele din BD care sunt în coș
+  const placeholders = ids.map(() => '?').join(',');
+  db.all(`SELECT * FROM produse WHERE id IN (${placeholders})`, ids, (err, rows) => {
+    if (err) return res.status(500).send('Eroare pe server');
+
+    // construieşte lista cu cantităţi şi subtotaluri
+    const items = rows.map(row => {
+      const qty = cos[row.id] || 0;
+      const subtotal = (row.pret * qty).toFixed(2);
+      return {
+        id:       row.id,
+        nume:     row.nume,
+        pret:     row.pret.toFixed(2),
+        quantity: qty,
+        subtotal
+      };
+    });
+
+    const total = items
+      .reduce((acc, it) => acc + parseFloat(it.subtotal), 0)
+      .toFixed(2);
+
+    res.render('vizualizare-cos', { items, total });
   });
 });
 

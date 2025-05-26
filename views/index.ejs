@@ -1,11 +1,37 @@
 <main>
   <div class="card">
+
+    
     <% if (user) { %>
     <h2>🖋️ Bine ai venit, <%= user.nume %> <%= user.prenume %>! 🎉</h2>
       <a href="/chestionar" class="button">📚 Începe chestionarul!</a>
+      <a href="/creare-bd" class="button">Creare BD</a>
+      <a href="/inserare-bd" class="button">Încarcare BD</a>
     <% } else { %>
       <h2>Bun venit pe pagina principală!</h2>
       <p>Apasă aici pentru <a href="/autentificare" class="button">Autentificare🔑</a></p>
     <% } %>
   </div>
+
+
+
+  <div class="card">
+    <h2>Catalog Documente</h2>
+    
+    <% produse.forEach((p, idx) => { %>
+      <div class="produs">
+      <!-- index-ul +1 -->
+      <h3><%= idx + 1 %>. <%= p.nume %></h3>
+      <p><em><%= p.descriere %></em></p>
+      <p><strong>Preț: <%= p.pret %> lei</strong></p>
+        <% if (user) { %>
+          <!-- apel GET catre /adaugare_cos?id=<id> -->
+          <a href="/adaugare-cos?id=<%= p.id %>" class="cart-btn">Adaugă în coș</a>
+        <% } %>
+      </div>
+    <% }) %>
+  </div>
+
+
+  
 </main>

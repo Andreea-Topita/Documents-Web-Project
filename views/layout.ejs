@@ -1,23 +1,27 @@
 <!DOCTYPE html>
 <html lang="ro">
+
     <head>
         <meta charset="UTF-8">
         <title>PW</title>
         <link rel="stylesheet" href="/css/style.css">
+        
     </head>
 
     <body>
-        <header>
-            <h1>Documente</h1>
-
-            <% if (user) { %>
-                <nav>
+    <header>
+    <h1>Documente</h1>
+        <% if (user) { %>
+            <div class="nav-left">
                 <span>Autentificat ca <strong><%= user.nume %> <%= user.prenume %></strong></span>
                 <a href="/deconectare" class="logout">🚪 Deconectare</a>
-                </nav>
-            <% } %>
+            </div>
 
-        </header>
+            <div class="nav-right">
+                <a href="/vizualizare-cos" class="cart-link">🛒 Coș</a>
+            </div>
+        <% } %>
+    </header>
 
         <main>
             <%-body %>
