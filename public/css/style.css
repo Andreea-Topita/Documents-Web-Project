@@ -131,12 +131,26 @@ form {
 
 .card fieldset {
   padding: 4px 10px;      
-  margin-bottom: 16px;     
+  margin-bottom: 16px;   
 }
 
 .card legend {
   margin-bottom: 0;        
   padding: 0 4px;
+}
+
+.card form fieldset div {
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+
+.card form fieldset input {
+  /* width: 100%;          */
+  padding: 5px;
+  border: 1px solid #d3c0cc;
+  border-radius: 4px;
+  font-size: 14px;
 }
 
 fieldset {
@@ -147,7 +161,7 @@ fieldset {
 }
 
 legend {
-  font-weight: bold;
+  
   font-size: 16px;
   padding: 0 4px;
   display: block;
@@ -155,12 +169,12 @@ legend {
 }
 
 fieldset div {
-  margin-top: 1px;        
+  margin-top: 1px;  
 }
 
 label {
   margin-left: 4px;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 hr {
@@ -178,10 +192,13 @@ hr {
 .card form {
   margin-top: 12px;
 }
+
 .card input[type="text"],
-.card input[type="password"] {
+.card input[type="password"],
+.card input[type="number"]{
   width: 100%;
   margin-top: 4px;
+
 }
 
 
@@ -247,3 +264,36 @@ display: inline-block;
   text-align: right;        
 }
 
+
+/* lab13 */
+
+.error-page {
+  max-width: 500px;
+  margin: 64px auto;  
+  background: #fce5f1e4;
+  border: 1px solid #f8d4d8f5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.error-page h1 {
+  color: #000000;
+  margin-bottom: 1rem;
+}
+
+.error-page p {
+  color: #000000;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.error-page .button {
+  display: inline-block;
+  padding: 8px 16px;
+  background: #b72020;
+  color: white;
+  border-radius: 4px;
+  text-decoration: none;
+}

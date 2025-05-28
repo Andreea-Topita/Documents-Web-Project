@@ -4,34 +4,39 @@
     "password": "123",
     "nume": "Topiță",
     "prenume": "Andreea",
-    "email": "andreeatopita57@gmail.com"
+    "email": "andreeatopita57@gmail.com",
+    "role": "USER"
   },
   {
     "username": "admin",
-    "password": "parola123",
+    "password": "23",
     "nume": "Administrator",
     "prenume": "Site",
-    "email": "admin@gmail.com"
+    "email": "admin@gmail.com",
+    "role": "ADMIN"
   },
   {
     "username": "ionpop",
     "password": "pop12",
     "nume": "Popa",
     "prenume": "Ion",
-    "email": "ion.popa@yahoo.com"
+    "email": "ion.popa@yahoo.com",
+    "role": "USER"
   },
   {
     "username": "mariad",
     "password": "parola",
     "nume": "Dumitrescu",
     "prenume": "Maria",
-    "email": "maria.dumitrescu@gmail.com"
+    "email": "maria.dumitrescu@gmail.com",
+    "role": "USER"
   },
   {
     "username": "bogdanb",
     "password": "bog",
     "nume": "Barbu",
     "prenume": "Bogdan",
-    "email": "bogdan.barbu@yahoo.com"
+    "email": "bogdan.barbu@yahoo.com",
+    "role": "USER"
   }
 ]

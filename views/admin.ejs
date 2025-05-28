@@ -1,0 +1,29 @@
+<div class="card">
+  <h2>⚙️ Panou Admin</h2>
+  <% if (mesaj) { %>
+    <p class="info"><%= mesaj %></p>
+  <% } %>
+    <form action="/admin" method="POST">
+    <fieldset>
+        <legend>Adaugare Produs</legend>
+        <div>
+            <label for="nume">Nume produs:</label>
+            <input id="nume" name="nume" type="text" >
+        </div>
+
+        <div>
+            <label for="pret">Preț:</label>
+            <input id="pret" name="pret" type="number" step="0.01" required>
+        </div>
+
+        <div>
+            <label for="descriere">Descriere:</label>
+            <input id="descriere" name="descriere" type="text">
+        </div>
+
+    </fieldset>
+
+    <button class="button" type="submit">Adaugă produs</button>
+    <a href="/" class="button">Înapoi la catalog</a>
+    </form>
+</div>

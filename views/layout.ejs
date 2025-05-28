@@ -15,16 +15,21 @@
             <div class="nav-left">
                 <span>Autentificat ca <strong><%= user.nume %> <%= user.prenume %></strong></span>
                 <a href="/deconectare" class="logout">🚪 Deconectare</a>
+
             </div>
 
             <div class="nav-right">
                 <a href="/vizualizare-cos" class="cart-link">🛒 Coș</a>
+                 <% if (userType === 'ADMIN') { %>
+                    <a href="/admin" class="cart-link">⚙️ Admin</a>
+                <% } %>
             </div>
         <% } %>
     </header>
 
         <main>
             <%-body %>
+            
         </main>
         <hr>
         <footer>

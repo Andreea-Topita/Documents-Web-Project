@@ -1,16 +1,14 @@
+const path = require('path');
 const express = require('express');
 const expressLayouts = require('express-ejs-layouts');
 const bodyParser = require('body-parser');
 const cookieParser=require('cookie-parser');
 
-const sqlite3         = require('sqlite3').verbose();      
-
+const sqlite3 = require('sqlite3').verbose();      
 
 //importam lista de intrebari din fisierul json
 // fisierul json contine un array de obiecte cu intrebari, variante si raspuns corect
 const fs = require('fs').promises;
-const path = require('path');
-
 const session = require('express-session');
 
 //deschidem fisierul de baza de date SQLite
@@ -29,23 +27,22 @@ const execute = (db, sql, params = []) => {
   });
 };
 
-
 const app = express();
 const port = 6789;
+const blacklist = {};
 
-app.use(cookieParser());   
+// doua obiecte pentru a urmari esecurile
+const loginFailuresByIp   = {};  // { [ip]:   { count, blockedUntil } }
+const loginFailuresByUser = {};  // { [user]:{ count, blockedUntil } }
 
 
 // directorul 'views' va conține fișierele .ejs (html + js executat la server)
 app.set('view engine', 'ejs');
-
 // suport pentru layout-uri – implicit fișierul template este views/layout.ejs
 app.use(expressLayouts);
-
 // directorul 'public' va conține toate resursele accesibile direct de către client
 // (e.g., fișiere css, javascript, imagini)
 app.use(express.static('public'));
-
 // corpul mesajului poate fi interpretat ca JSON; datele de la formular se găsesc
 // în format JSON în req.body
 app.use(bodyParser.json());
@@ -53,13 +50,9 @@ app.use(bodyParser.json());
 // utilizarea unui algoritm de deep parsing care suportă obiecte în obiecte
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
-
-
 // middleware pentru gestionarea sesiunilor
 //middleware-ul va salva datele sesiunii in memorie
 //middleware = functie care se executa inainte de a ajunge la ruta
-
 app.use(session({
   secret: 'secret-key', // cheia secreta pentru criptarea sesiunii
   resave: false,
@@ -70,8 +63,33 @@ app.use(session({
  //disponibil in toate view-urile ca variabila "user"
 app.use((req, res, next) => {
   res.locals.user = req.session.user;
+  res.locals.userType = req.session.userType;
   next();
 });
+
+
+
+app.use((req, res, next) => {
+  if (req.path.startsWith('/.well-known/')) {
+      return res.status(404).render('error', {
+        status: 404,
+        message: 'Resursă nu a fost găsită (well-known).'
+      });
+    }
+
+    const ip = req.ip;
+    const entry = blacklist[ip];
+    if (entry && entry.blockedUntil > Date.now()) {
+      return res.status(403).render('error', {
+        status: 403,
+        message: '⛔ Sunteți blocat! Încercați din nou peste 10 secunde.'
+      });
+    }
+    next();
+});
+
+
+
 //middleware pentru a face coșul de cumpărături disponibil în toate view-urile
 // va fi disponibil in toate view-urile ca variabila "cos"
 // daca nu exista cosul, il initializam ca obiect gol
@@ -80,6 +98,26 @@ app.use((req, res, next) => {
   next();
 });
 
+//middleware pentru protectie a rutei /admin ,get 
+//verifica orice cerere catre admin 
+app.use((req, res, next) => {
+  if (req.path.startsWith('/admin')) {
+    if (req.session.userType !== 'ADMIN') {
+      return res.status(403).render('error', {
+        status: 403,
+        message: '⛔ Acces interzis: doar ADMIN.'
+      });
+    }
+  }
+  next();
+});
+
+
+//get, afisez formularul 
+//mesaj e pentru post mai mult, cand chiar afizez mesajul de succes sau eroare
+app.get('/admin', (req, res) => {
+  res.render('admin', { mesaj: null });
+});
 
 async function loadUtilizatori() {
   const filePath = path.join(__dirname, 'utilizatori.json');
@@ -94,14 +132,11 @@ async function loadIntrebari() {
     return JSON.parse(data);
 }
 
-
 // la accesarea din browser adresei http://localhost:6789/ se va returna textul 'Hello World'
 // proprietățile obiectului Request - req - https://expressjs.com/en/api.html#req
 // proprietățile obiectului Response - res - https://expressjs.com/en/api.html#res
 
-
 //LAB12 data base
-
 app.get('/creare-bd', async (req, res) => {
   const sql = `
     CREATE TABLE IF NOT EXISTS produse (
@@ -119,8 +154,6 @@ app.get('/creare-bd', async (req, res) => {
   }
   res.redirect('/');
 });
-
-
 
 app.get('/inserare-bd', async (req, res) => {
   const produse = [
@@ -144,11 +177,9 @@ app.get('/inserare-bd', async (req, res) => {
   } catch (err) {
     console.error('Eroare la inserare produse:', err);
   }
-
-  // redirect la pagină principală
+  // redirect la pagina principala
   res.redirect('/');
 });
-
 
 // la accesarea din browser adresei  se va apela functia 
 app.get('/chestionar',async  (req, res) => {
@@ -167,7 +198,6 @@ app.get('/chestionar',async  (req, res) => {
         res.status(500).send('A apărut o eroare pe server.');
       }
 });
-
 
 app.post('/rezultat-chestionar', async (req, res) => {
     try {
@@ -225,8 +255,6 @@ app.get('/adaugare-cos', (req, res) => {
   res.redirect('/');
 });
 
-
-
 app.get('/vizualizare-cos', (req, res) => {
   const cos = req.session.cos || {};
   const ids = Object.keys(cos).map(id => parseInt(id, 10));
@@ -260,49 +288,143 @@ app.get('/vizualizare-cos', (req, res) => {
   });
 });
 
-
 //autentificare.ejs
 //accesare cookie mesajEroare
 //daca cookie-ul este setat, se va afisa mesajul de eroare
 app.get('/autentificare', (req, res) => {
 
-    const mesajEroare = req.session.mesajEroare;
+    const mesaj = req.session.mesajEroare;
+    // clear it so no refresh will ever see it again
     req.session.mesajEroare = null;
-
-    res.render('autentificare', { mesajEroare });
+    // render with a single variable called "mesaj"
+    res.render('autentificare', { mesaj });
 });
 
-//verificare-autentificare post
+
+app.use('/verificare-autentificare', (req, res, next) => {
+  const ip   = req.ip;
+  const user = req.body.user;
+
+  if (loginFailuresByIp[ip]?.blockedUntil > Date.now() ||
+    loginFailuresByUser[user]?.blockedUntil > Date.now()) {
+  return res.status(403).render('error', {
+    status: 403,
+    message: '⛔ Ai fost blocat 20 de secunde pentru prea multe încercări de login.'
+  });
+  }
+
+  next();
+});
+
+// apoi handler-ul tău de autentificare
 app.post('/verificare-autentificare', async (req, res) => {
   const { user: username, pass: password } = req.body;
-  const utilizatori = await loadUtilizatori();
+  const ip = req.ip;
 
-  // caută utilizatorul în JSON
+  const utilizatori = await loadUtilizatori();
   const usr = utilizatori.find(u =>
     u.username === username && u.password === password
   );
 
   if (usr) {
-    // 1. „Destructurăm” usr scoțând parola
-    const { parola, ...secureProps } = usr;
+    // autentificare cu succes → resetează ambii contori
+    delete loginFailuresByIp[ip];
+    delete loginFailuresByUser[username];
 
-    // 2. Salvăm în sesiune tot ce vrei fără parola
-    req.session.user = secureProps;
-
+    const { parola, ...secure } = usr;
+    req.session.user     = secure;
+    req.session.userType = secure.role;
     return res.redirect('/');
-    } else {
-        // autentificare FAIL → pune mesaj în sesiune și redirecționează
-        req.session.mesajEroare = '❌ User sau parolă invalidă!!!';
-        return res.redirect('/autentificare');
   }
+
+  // autentificare eșuată → increment pentru IP și pentru user
+  for (let [store, key] of [[loginFailuresByIp, ip], [loginFailuresByUser, username]]) {
+    if (!store[key]) store[key] = { count: 0, blockedUntil: 0 };
+    store[key].count++;
+    if (store[key].count >= 3) {
+      store[key].blockedUntil = Date.now() + 5*1000;  // 20 secunde
+      store[key].count        = 0;                    // reset pt. după deblocare
+    }
+  }
+
+  req.session.mesajEroare = '❌ User sau parolă invalidă!!!';
+  res.redirect('/autentificare');
 });
-
-
 
 
 app.get('/deconectare', (req, res) => {
     req.session.destroy(err => {
     res.redirect('/');
+  });
+});
+
+//PT ADMIN
+//POST /admin pentru adăugarea unui produs
+app.post('/admin', async (req, res) => {
+  const { nume, pret, descriere } = req.body;
+
+  //validari - sanitizare date 
+if (nume.trim().length < 2 || nume.trim().length > 50) {
+    return res.render('admin', { mesaj: '❌ Numele produsului e obligatoriu!' });
+  }
+  const pretNum = parseFloat(pret);
+  if (Number.isNaN(pretNum) || pretNum < 0.01 || pretNum > 10000) {
+    return res.render('admin', { mesaj: '❌ Preț invalid — trebuie să fie între 0 si 10000!' });
+  }
+  if (descriere.length > 200 || descriere.length < 5) {
+    // descrierea trebuie să aiba intre 5 si 200 de caractere
+    return res.render('admin', { mesaj: '❌ Descrierea trebuie să aibă între 5 și 200 de caractere!' });
+  }
+
+
+  try {
+    // parametrizat ca să previi SQL injection
+    await execute(
+      db,
+      `INSERT INTO produse (nume, pret, descriere) VALUES (?, ?, ?)`,
+      [nume.trim(), pretNum, descriere.trim()]
+    );
+    // afișezi mesaj de succes
+    return res.render('admin', { mesaj: '✅ Produs adăugat cu succes!' });
+  } catch (err) {
+    console.error('Eroare la adăugarea produsului:', err);
+    return res.render('admin', { mesaj: '⛔ Eroare la adăugare!' });
+  }
+});
+
+
+app.use((req, res) => {
+  if (req.path.startsWith('/.well-known/')) {
+    return res.status(404).render('error', {
+      status: 404,
+      message: 'Resursă nu a fost găsită (well-known).'
+    });
+  }
+
+
+  //console.log('404 pe:', req.path, '(înainte contor=', (blacklist[req.ip]?.count||0), ')');
+
+  const ip = req.ip;
+  if (!blacklist[ip]) {
+    blacklist[ip] = { count: 0, blockedUntil: 0 };
+  }
+  const entry = blacklist[ip];
+
+  entry.count += 1;
+
+  if (entry.count >= 3) {
+    // blocăm 30s
+    entry.blockedUntil = Date.now() + 10 * 1000;
+    entry.count = 0;    //reset dupa deblocare
+    return res.status(403).render('error', {
+      status: 403,
+      message: '⛔ Ai fost blocat pentru că ai încercat 3 resurse inexistente. Încearcă peste 10s.'
+    });
+  }
+
+    res.status(404).render('error', {
+    status: 404,
+    message: `❓ Resursă inexistentă (${entry.count}/3).`
   });
 });
 

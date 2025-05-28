@@ -2,8 +2,8 @@
   <div class="card">
     <h2>🔐 Autentificare</h2>
 
-    <% if (mesajEroare) { %>
-      <p class="error"><%= mesajEroare %></p>
+    <% if (mesaj) { %>
+      <p class="error"><%= mesaj %></p>
     <% } %>
 
     <form method="POST" action="/verificare-autentificare">
