@@ -297,3 +297,11 @@ display: inline-block;
   border-radius: 4px;
   text-decoration: none;
 }
+
+h2 {
+  text-align: center;
+}
+
+.cart-btn:hover {
+  background: #d886b7cf;
+}
